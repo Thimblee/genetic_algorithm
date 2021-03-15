@@ -9,15 +9,15 @@ window.onload = function() {
 const canvas = document.createElement("canvas");
 document.getElementById("app").appendChild(canvas);
 
+const GENERATION = document.getElementById("generation");
+const INIT = document.getElementById("init");
+const NEXT = document.getElementById("next");
+const alert = document.getElementById('alert');
+
 canvas.width = 1200;
 canvas.height = 400;
-
 const ctx = canvas.getContext("2d");
-
-ctx.save();
-ctx.fillStyle = "white";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-ctx.restore();
+ctx.lineWidth = 10;
 
 const BOX_COLOR = "green";
 const MAIN_COLOR = "blue";
@@ -26,8 +26,10 @@ const SIZE = 20;
 const ROW = 2;
 const COL = 5;
 const FLG = new Array(ROW*COL).fill(0);
+const items = [];
 
-ctx.lineWidth = 10;
+let NOW_G = 1;
+let solutions = [];
 
 class Box {
     constructor(x, y, w, h) {
@@ -53,7 +55,6 @@ class Box {
     }
 }
 
-const items = [];
 function makeBox() {
     for (let row = 0; row < ROW; ++row) {
         for (let col = 0; col < COL; ++col) {
@@ -104,18 +105,20 @@ function visualize(solutions) {
 }
 
 function randomtwo(max) {
-    const first = Math.floor( Math.random() * MAX/2 );
-    let second = Math.floor( Math.random() * MAX/2 );
+    const first = Math.floor( Math.random() * max );
+    let second = Math.floor( Math.random() * max );
     while (second == first) {
-        second = Math.floor( Math.random() * MAX/2 );
+        second = Math.floor( Math.random() * max );
     }
-    return first, second;
+    return [first, second];
 }
 
 function crossover(sol1, sol2) {
-    const thres = Math.floor( Math.random() * (ROW * COL)/2 );
+    const thres = Math.floor( Math.random() * 32 );
     let new_solution = [];
-    for (let i = 0; i < ROW*COL/2; ++i) {
+    for (let i = 0; i < 32; ++i) {
+        console.log(i);
+        console.log(sol1[0], sol2[0]);
         if (i < thres) new_solution.push(sol1[i]);
         else new_solution.push(sol2[i]);
     }
@@ -123,38 +126,27 @@ function crossover(sol1, sol2) {
 }
 
 function mutation(solution) {
-    const mut = Math.floor( Math.random() * (ROW * COL)/2 );
-    let new_solution = solution.copy();
+    const mut = Math.floor( Math.random() * 32 );
+    let new_solution = solution.concat();
     new_solution[mut] = (new_solution[mut] + 1) % 2;
     return new_solution;
 }
 
-function new_generation(parents, mut_n=3) {
-    let solutions = [];
+function new_generation(parents, mut_n=10) {
+    let new_solutions = [];
     const len = parents.length;
-    for (let i = 0; i < len; ++i) {
-        let a, b = randomtwo(len);
-        let child = crossover(parents[a], parents[b]);
-        solutions.push(child);
+    for (let i = 0; i < 10; ++i) {
+        let couple = randomtwo(len);
+        let child = crossover(parents[couple[0]], parents[couple[1]]);
+        new_solutions.push(child);
     }
     for (let i = 0; i < mut_n; ++i) {
-        solutions[i] = mutation(solutions[i]);
+        new_solutions[i] = mutation(new_solutions[i]);
     }
-    return solutions;
+    return new_solutions;
 }
 
-const solutions = [];
-for (let i = 0; i < 10; ++i) {
-    let array = [];
-    for (let j = 0; j < 32; ++j) {
-        array.push(Math.floor( Math.random() * 2 ));
-    }
-    solutions.push(array);
-}
-visualize(represent(solutions));
-
-makeBox();
-canvas.addEventListener("click", e => {
+function paintBorder(e) {
     const rect = canvas.getBoundingClientRect();
     const point = {
         x: e.clientX - rect.left,
@@ -172,35 +164,68 @@ canvas.addEventListener("click", e => {
             }
         }
     }
-});
+}
 
-const span = document.createElement('span');
+function init() {
+    NOW_G = 1;
+    GENERATION.textContent = "1st Generation";
+    solutions = [];
+    for (let i = 0; i < FLG.length; ++i) {
+        FLG[i] = false;
+    }
+    for (let i = 0; i < 10; ++i) {
+        let array = [];
+        for (let j = 0; j < 32; ++j) {
+            array.push(Math.floor( Math.random() * 2 ));
+        }
+        solutions.push(array);
+    }
+    visualize(represent(solutions));
+}
+
 function next() {
-    console.log(777);
     let cnt = 0;
     FLG.forEach(a => {
         if (a == true) ++cnt;
     })
-    if (cnt < 2) span.textContent = "select at least two";
-    else {
-        span.textContent = "";
-        let parents = [];
-        for (let i = 0; i < ROW*COL; ++i) {
-            if (FLG[i] == true) {
-                parents += solutions[i];
-                FLG[i] = false;
-                items[i].unclicked();
-            }
+    if (cnt < 2) {
+        alert.textContent = "select at least two";
+        return;
+    }
+
+    NOW_G++;
+    if (NOW_G == 2) GENERATION.textContent = "2nd Generation";
+    else if (NOW_G == 3) GENERATION.textContent = "3rd Generation";
+    else GENERATION.textContent = `${NOW_G}th Generation`; 
+    alert.textContent = "";
+
+    let parents = [];
+    for (let i = 0; i < ROW*COL; ++i) {
+        if (FLG[i] == true) {
+            parents.push(solutions[i]);
+            items[i].unclicked(ctx);
         }
-        solutions = new_generation(parents);
-        visualize(solutions)
+    }
+    for (let i = 0; i < FLG.length; ++i) {
+        FLG[i] = false;
+    }
+    solutions = new_generation(parents);
+    visualize(represent(solutions));
+}
+
+function main() {
+    makeBox();
+    init();
+    canvas.addEventListener("click", e => {
+        paintBorder(e);
+    });
+    INIT.onclick = function() {
+        init();
+    }
+    NEXT.onclick = function() {
+        next();
     }
 }
 
-function init() {
-    return 1;
-}
-
-//document.getElementById("init").addEventListener("click", init());
-document.getElementById("next").addEventListener("click", next());
+main();
 }
