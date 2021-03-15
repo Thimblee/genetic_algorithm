@@ -10,7 +10,7 @@ const canvas = document.createElement("canvas");
 document.getElementById("app").appendChild(canvas);
 
 canvas.width = 1200;
-canvas.height = 500;
+canvas.height = 400;
 
 const ctx = canvas.getContext("2d");
 
@@ -174,4 +174,33 @@ canvas.addEventListener("click", e => {
     }
 });
 
+const span = document.createElement('span');
+function next() {
+    console.log(777);
+    let cnt = 0;
+    FLG.forEach(a => {
+        if (a == true) ++cnt;
+    })
+    if (cnt < 2) span.textContent = "select at least two";
+    else {
+        span.textContent = "";
+        let parents = [];
+        for (let i = 0; i < ROW*COL; ++i) {
+            if (FLG[i] == true) {
+                parents += solutions[i];
+                FLG[i] = false;
+                items[i].unclicked();
+            }
+        }
+        solutions = new_generation(parents);
+        visualize(solutions)
+    }
+}
+
+function init() {
+    return 1;
+}
+
+//document.getElementById("init").addEventListener("click", init());
+document.getElementById("next").addEventListener("click", next());
 }
