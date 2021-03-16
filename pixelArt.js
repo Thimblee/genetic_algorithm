@@ -31,6 +31,36 @@ const items = [];
 let NOW_G = 1;
 let solutions = [];
 
+const seed = 0;
+class Random {
+    constructor(seed = 88675123) {
+        this.seed = seed;
+        this.x = 123456789;
+        this.y = 362436069;
+        this.z = 521288629;
+        this.w = seed;
+    }
+
+    next() {
+        let t = this.x ^ (this.x << 11);
+        this.x = this.y; this.y = this.z; this.z = this.w;
+        return this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8));
+    }
+
+    randint(min, max) {
+        const r = Math.abs(this.next());
+        return min + (r % (max - min));
+    }
+
+    reset() {
+        this.x = 123456789;
+        this.y = 362436069;
+        this.z = 521288629;
+        this.w = this.seed;
+    }
+}
+const random = new Random(seed);
+
 class Box {
     constructor(x, y, w, h) {
         this.x = x;
@@ -105,20 +135,18 @@ function visualize(solutions) {
 }
 
 function randomtwo(max) {
-    const first = Math.floor( Math.random() * max );
-    let second = Math.floor( Math.random() * max );
+    const first = random.randint(0, max);
+    let second = random.randint(0, max);
     while (second == first) {
-        second = Math.floor( Math.random() * max );
+        second = random.randint(0, max);
     }
     return [first, second];
 }
 
 function crossover(sol1, sol2) {
-    const thres = Math.floor( Math.random() * 32 );
+    const thres = random.randint(32);
     let new_solution = [];
     for (let i = 0; i < 32; ++i) {
-        console.log(i);
-        console.log(sol1[0], sol2[0]);
         if (i < thres) new_solution.push(sol1[i]);
         else new_solution.push(sol2[i]);
     }
@@ -126,7 +154,7 @@ function crossover(sol1, sol2) {
 }
 
 function mutation(solution) {
-    const mut = Math.floor( Math.random() * 32 );
+    const mut = random.randint(32);
     let new_solution = solution.concat();
     new_solution[mut] = (new_solution[mut] + 1) % 2;
     return new_solution;
@@ -172,11 +200,12 @@ function init() {
     solutions = [];
     for (let i = 0; i < FLG.length; ++i) {
         FLG[i] = false;
+        items[i].unclicked(ctx);
     }
     for (let i = 0; i < 10; ++i) {
         let array = [];
         for (let j = 0; j < 32; ++j) {
-            array.push(Math.floor( Math.random() * 2 ));
+            array.push(random.randint(0, 2));
         }
         solutions.push(array);
     }
@@ -203,14 +232,18 @@ function next() {
     for (let i = 0; i < ROW*COL; ++i) {
         if (FLG[i] == true) {
             parents.push(solutions[i]);
-            items[i].unclicked(ctx);
         }
     }
     for (let i = 0; i < FLG.length; ++i) {
         FLG[i] = false;
+        items[i].unclicked(ctx);
     }
     solutions = new_generation(parents);
     visualize(represent(solutions));
+}
+
+function keyDown(e) {
+    if (e.key === 'R') random.reset();
 }
 
 function main() {
@@ -225,6 +258,7 @@ function main() {
     NEXT.onclick = function() {
         next();
     }
+    document.addEventListener('keydown', keyDown);
 }
 
 main();
