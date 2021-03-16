@@ -3,15 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genetic Algorithm</title>
     <link rel="stylesheet" href="main.css">
-    <script src="pixelArt.js"></script>
+    <title>Genetic Algorirhm</title>
 </head>
 <body>
-    <h1 id="generation"></h1>
-    <main id="app"></main>
-    <input type="button" value="Restart" class="btn" id="init">
-    <input type="button" value="Next" class="btn" id="next">
-    <span style="color:red;" id="alert"></span>
+    <a class="goto" id="top" href="pixelArt.html">
+        <strong>go to pixel art</strong></a>
+
+    <script src="main.js"></script>
+
+    <div class="screenBlue">
+        <br>
+        <h2>遺伝的アルゴリズム</h2>
+    </div>
+    <div class="screenRed">
+        ランダムに解を生成する
+        <br>
+        <div class="arrow-bottom"></div>
+        <br>
+        <strong>淘汰</strong>、<strong>交叉</strong>、<strong>突然変異</strong>
+        を繰り返す
+        <div class="arrow-bottom"></div>
+        <br>
+        最適解に辿り着く
+    </div>
+    <div class="screenBlue">
+        <h3>淘汰</h3>
+        適応度が大きい解を優先的に選択し、その他の解を削除する
+        <br>
+    </div>
+    <div class="screenRed">
+        <h3>交叉</h3>
+        選択された解の一部を交換し、新しい解を生成する
+    </div>
+    <div class="screenBlue">
+        <h3>突然変異</h3>
+        解の一部を無作為に変化させる
+    </div>
+    <div class="screenRed">
+        <h3>得意なこと</h3>
+        <div style=text-align:left>
+            ・単純な絵を描くこと
+            <br>
+            ・抽象アート
+        </div>
+        <em><strong style=color:black>明確なイメージがなくても機能する</strong></em>
+    </div>
+    <div class="screenBlue">
+        <h3>短所</h3>
+        <div style=text-align:left>
+            ・毎回同じような結果は得られない
+            <br>
+            ・パラメータやコーディングの
+            <br>
+            &ensp;
+            一般的手法が確立されていない
+            <br>
+        </div>
+    </div>
+    <div class="screenRed">
+        <h3>まとめ</h3>
+        遺伝的アルゴリズムは、評価関数さえあれば適用できる
+        非常に柔軟な最適化手法
+    </div>
 </body>
 </html>

@@ -10,6 +10,7 @@ const canvas = document.createElement("canvas");
 document.getElementById("app").appendChild(canvas);
 
 const GENERATION = document.getElementById("generation");
+const RET= document.getElementById("ret");
 const INIT = document.getElementById("init");
 const NEXT = document.getElementById("next");
 const alert = document.getElementById('alert');
@@ -31,7 +32,7 @@ const items = [];
 let NOW_G = 1;
 let solutions = [];
 
-const seed = 0;
+const seed = 1;
 class Random {
     constructor(seed = 88675123) {
         this.seed = seed;
@@ -144,7 +145,7 @@ function randomtwo(max) {
 }
 
 function crossover(sol1, sol2) {
-    const thres = random.randint(32);
+    const thres = random.randint(0, 32);
     let new_solution = [];
     for (let i = 0; i < 32; ++i) {
         if (i < thres) new_solution.push(sol1[i]);
@@ -154,7 +155,7 @@ function crossover(sol1, sol2) {
 }
 
 function mutation(solution) {
-    const mut = random.randint(32);
+    const mut = random.randint(0, 32);
     let new_solution = solution.concat();
     new_solution[mut] = (new_solution[mut] + 1) % 2;
     return new_solution;
@@ -192,6 +193,11 @@ function paintBorder(e) {
             }
         }
     }
+}
+
+function ret() {
+    window.location.href = "index.html";
+    window.open("index.html", "_blank");
 }
 
 function init() {
@@ -252,6 +258,9 @@ function main() {
     canvas.addEventListener("click", e => {
         paintBorder(e);
     });
+    RET.onclick = function() {
+        ret();
+    }
     INIT.onclick = function() {
         init();
     }
